@@ -34,11 +34,11 @@ resource "aws_security_group" "allow_all" {
   vpc_id      = aws_vpc.testvpc.id
 
   ingress {
-    description      = "Allow traffic"
-    from_port        = 80
-    to_port          = 80
-    protocol         = "tcp"
-    cidr_blocks      = ["0.0.0.0/0"]
+    description = "Allow traffic"
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
   }
 
   egress {
@@ -66,27 +66,53 @@ resource "aws_internet_gateway" "testigw" {
 #Routing table
 resource "aws_route_table" "newtestrt" {
   vpc_id = aws_vpc.testvpc.id
-    
- tags = {
+
+  tags = {
     Name = "NewTestRT"
- }
-} 
+  }
+}
 
 #   user_data = filebase64("${path.module}/apache.sh")
 # }
 resource "aws_instance" "testserver" {
-  ami = "ami-0022f774911c1d690"
-  instance_type = "t2.micro"
-  vpc_security_group_ids = [aws_security_group.allow_all.id]
-  subnet_id = aws_subnet.public_subnet.id
+  ami                         = "ami-0022f774911c1d690"
+  instance_type               = "t2.micro"
+  vpc_security_group_ids      = [aws_security_group.allow_all.id]
+  subnet_id                   = aws_subnet.public_subnet.id
   associate_public_ip_address = true
-  
+
   monitoring = true
-  
-  user_data = "${file("apache.sh")}"
-  
+
+  user_data = file("apache.sh")
+
   tags = {
     name = "testServer"
   }
-  
+
+}
+
+#Create ASG 
+resource "aws_launch_configuration" "terraform_config" {
+  name          = "web_config"
+  image_id      = "ami-0022f774911c1d690"
+  instance_type = "t2.micro"
+
+  lifecycle {
+    create_before_destroy = true
+  }
+}
+
+resource "aws_autoscaling_group" "terraform_asg" {
+  name                 = "terraform-asg-example"
+  availability_zones   = ["us-east-1a"]
+  launch_configuration = aws_launch_configuration.terraform_config.name
+  min_size             = 2
+  max_size             = 4
+  desired_capacity     = 2
+  force_delete         = true
+
+
+  lifecycle {
+    create_before_destroy = true
+  }
 }
