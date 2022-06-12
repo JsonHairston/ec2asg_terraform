@@ -62,8 +62,6 @@ resource "aws_instance" "testserver" {
 
   monitoring = true
 
-  user_data = file("apache.sh")
-
   tags = {
     name = "testServer"
   }
@@ -73,7 +71,7 @@ resource "aws_launch_configuration" "terraform_config" {
   name          = "web_config"
   image_id      = "ami-0022f774911c1d690"
   instance_type = "t2.micro"
-   user_data = file("apache.sh")
+  user_data = file("apache.sh")
 
   lifecycle {
     create_before_destroy = true
