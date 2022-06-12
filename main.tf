@@ -99,6 +99,7 @@ resource "aws_launch_template" "testserver" {
       Name = "testserver"
     }
   }
+}
 
 #   user_data = filebase64("${path.module}/apache.sh")
 # }
