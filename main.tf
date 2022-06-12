@@ -83,6 +83,8 @@ resource "aws_instance" "testserver" {
   
   monitoring = true
   
+  user_data = "${file("apache.sh")}"
+  
   tags = {
     name = "testServer"
   }
