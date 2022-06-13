@@ -14,12 +14,12 @@ provider "aws" {
 
 ## Create a VPC
 resource "aws_vpc" "testvpc" {
-  cidr_block = "10.10.0.0/16"
+  cidr_block = var.vpc_cidr
 }
 
 resource "aws_subnet" "public_subnet" {
   vpc_id     = aws_vpc.testvpc.id
-  cidr_block = "10.10.0.0/16"
+  cidr_block = var.vpc_cidr
 
   tags = {
     Name = "PublicSubnet"
@@ -55,7 +55,7 @@ resource "aws_route_table_association" "public_rt_asso" {
 ## Creating Instance Resources
 resource "aws_launch_configuration" "terraform_config" {
   name                   = "web_config"
-  image_id               = "ami-0022f774911c1d690"
+  image_id               = var.image_id
   instance_type          = "t2.micro"
   security_groups = [aws_security_group.allow_all.id]
   associate_public_ip_address = true
