@@ -53,24 +53,13 @@ resource "aws_route_table_association" "public_rt_asso" {
 }
 
 ## Creating Instance Resources
-resource "aws_instance" "testserver" {
-  ami                         = "ami-0022f774911c1d690"
-  instance_type               = "t2.micro"
-  vpc_security_group_ids      = [aws_security_group.allow_all.id]
-  subnet_id                   = aws_subnet.public_subnet.id
-  associate_public_ip_address = true
-
-  monitoring = true
-
-  tags = {
-    name = "testServer"
-  }
-}
-
 resource "aws_launch_configuration" "terraform_config" {
-  name          = "web_config"
-  image_id      = "ami-0022f774911c1d690"
-  instance_type = "t2.micro"
+  name                   = "web_config"
+  image_id               = "ami-0022f774911c1d690"
+  instance_type          = "t2.micro"
+  security_groups = [aws_security_group.allow_all.id]
+  associate_public_ip_address = true
+  
   user_data = file("apache.sh")
 
   lifecycle {
@@ -80,7 +69,7 @@ resource "aws_launch_configuration" "terraform_config" {
 
 resource "aws_autoscaling_group" "terraform_asg" {
   name                 = "terraform-asg-example"
-  availability_zones   = ["us-east-1a"]
+  vpc_zone_identifier  = [aws_subnet.public_subnet.id]
   launch_configuration = aws_launch_configuration.terraform_config.name
   min_size             = 2
   max_size             = 4
@@ -141,6 +130,6 @@ resource "aws_security_group" "allow_all" {
 }
 
 #Outputs
-output "web_instance_ip" {
-    value = aws_instance.testserver.public_ip
-}
+# output "web_instance_ip" {
+#     value = aws_autoscaling_group.terraform_asg.public_ip
+# }
