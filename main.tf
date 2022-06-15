@@ -12,7 +12,7 @@ provider "aws" {
   region = "us-east-1"
 }
 
-#Outputs
-# output "web_instance_ip" {
-#     value = aws_autoscaling_group.terraform_asg.public_ip
-# }
+##Create the ASG##
+module "autoscaling" {
+  source = "./modules/autoscaling"
+}
